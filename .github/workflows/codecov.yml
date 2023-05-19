@@ -1,30 +1,29 @@
-name: Tests
+name: Upload Code Coverage
+
+# For the Codecov to do a code coverage diff in a PR,
+# it must have a code coverage of the PR base banch
+# (i.e. typically main). This Action runs tests on main
+# so the code coverage results can be uploaded and
+# a diff to appear in PRs.
 
 on:
-  pull_request:
+  push:
     branches:
       - main
     paths:
-      - 'gtts/**'
-      - 'pyproject.toml'
+      - 'gtts/**.py'
 
 jobs:
   test:
     name: Unit
 
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
-        os: [ubuntu-latest, macOS-latest, windows-latest]
-
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
 
       - uses: actions/setup-python@v4
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: "3.11"
 
       - name: Install
         run: |
@@ -34,7 +33,6 @@ jobs:
       - name: Unit Tests
         run: pytest -v --cov=gtts --cov-report=xml
         env:
-          # TODO: Test all langs on release branch
           TEST_LANGS: en
 
       - name: Upload Coverage Report
